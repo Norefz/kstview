@@ -16,6 +16,7 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
@@ -41,6 +42,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import java.util.Calendar
 import java.util.Locale
+
+private fun glanceColor(color: Color): ColorProvider = object : ColorProvider {
+    override fun getColor(context: Context): Color = color
+}
 
 class ScheduleWidget : GlanceAppWidget() {
     override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
@@ -139,7 +144,8 @@ class ScheduleWidget : GlanceAppWidget() {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .background(ColorProvider(Color(0xFF201E50)))
+                .cornerRadius(24.dp)
+                .background(glanceColor(Color(0xFF201E50)))
                 .padding(16.dp)
                 .clickable(actionStartActivity<MainActivity>())
         ) {
@@ -154,7 +160,7 @@ class ScheduleWidget : GlanceAppWidget() {
                         Image(
                             provider = ImageProvider(R.drawable.ic_calendar),
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(ColorProvider(Color(0xFFA5A3D0))),
+                            colorFilter = ColorFilter.tint(glanceColor(Color(0xFFA5A3D0))),
                             modifier = GlanceModifier.width(14.dp).height(14.dp)
                         )
                         Spacer(modifier = GlanceModifier.width(6.dp))
@@ -162,7 +168,7 @@ class ScheduleWidget : GlanceAppWidget() {
                             text = if (viewType == "daily") "Jadwal hari ini" else "Semua jadwal",
                             style = TextStyle(
                                 fontSize = 12.sp,
-                                color = ColorProvider(Color(0xFFA5A3D0))
+                                color = glanceColor(Color(0xFFA5A3D0))
                             )
                         )
                     }
@@ -177,7 +183,7 @@ class ScheduleWidget : GlanceAppWidget() {
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 28.sp,
-                                color = ColorProvider(Color.White)
+                                color = glanceColor(Color.White)
                             )
                         )
                         Text(
@@ -185,7 +191,7 @@ class ScheduleWidget : GlanceAppWidget() {
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 28.sp,
-                                color = ColorProvider(Color(0xFFFF5C8D))
+                                color = glanceColor(Color(0xFFFF5C8D))
                             )
                         )
                     }
@@ -194,14 +200,15 @@ class ScheduleWidget : GlanceAppWidget() {
                 // Yellow Class Counter Badge: Book Icon + 2 kelas
                 Box(
                     modifier = GlanceModifier
-                        .background(ColorProvider(Color(0xFFFFE26A)))
+                        .cornerRadius(16.dp)
+                        .background(glanceColor(Color(0xFFFFE26A)))
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             provider = ImageProvider(R.drawable.ic_book),
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF201E50))),
+                            colorFilter = ColorFilter.tint(glanceColor(Color(0xFF201E50))),
                             modifier = GlanceModifier.width(14.dp).height(14.dp)
                         )
                         Spacer(modifier = GlanceModifier.width(6.dp))
@@ -210,7 +217,7 @@ class ScheduleWidget : GlanceAppWidget() {
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 12.sp,
-                                color = ColorProvider(Color(0xFF201E50))
+                                color = glanceColor(Color(0xFF201E50))
                             )
                         )
                     }
@@ -224,7 +231,7 @@ class ScheduleWidget : GlanceAppWidget() {
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(ColorProvider(Color(0xFF34316E)))
+                    .background(glanceColor(Color(0xFF34316E)))
             ) {}
 
             Spacer(modifier = GlanceModifier.height(12.dp))
@@ -243,7 +250,7 @@ class ScheduleWidget : GlanceAppWidget() {
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
-                                color = ColorProvider(Color.White)
+                                color = glanceColor(Color.White)
                             )
                         )
                         Spacer(modifier = GlanceModifier.height(4.dp))
@@ -251,7 +258,7 @@ class ScheduleWidget : GlanceAppWidget() {
                             text = if (viewType == "daily") "Nikmati waktu luangmu ✨" else "Impor KST PDF di aplikasi",
                             style = TextStyle(
                                 fontSize = 12.sp,
-                                color = ColorProvider(Color(0xFFA5A3D0))
+                                color = glanceColor(Color(0xFFA5A3D0))
                             )
                         )
                     }
@@ -277,7 +284,7 @@ class ScheduleWidget : GlanceAppWidget() {
                                 modifier = GlanceModifier
                                     .fillMaxWidth()
                                     .height(1.dp)
-                                    .background(ColorProvider(Color(0xFF34316E)))
+                                    .background(glanceColor(Color(0xFF34316E)))
                             ) {}
                             Spacer(modifier = GlanceModifier.height(10.dp))
                         }
@@ -295,7 +302,9 @@ class ScheduleWidget : GlanceAppWidget() {
         iconRes: Int
     ) {
         Row(
-            modifier = GlanceModifier.fillMaxWidth(),
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Left Icon Container Box
@@ -303,13 +312,14 @@ class ScheduleWidget : GlanceAppWidget() {
                 modifier = GlanceModifier
                     .width(42.dp)
                     .height(42.dp)
-                    .background(ColorProvider(accentColor)),
+                    .cornerRadius(12.dp)
+                    .background(glanceColor(accentColor)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     provider = ImageProvider(iconRes),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF201E50))),
+                    colorFilter = ColorFilter.tint(glanceColor(Color(0xFF201E50))),
                     modifier = GlanceModifier.width(22.dp).height(22.dp)
                 )
             }
@@ -323,7 +333,7 @@ class ScheduleWidget : GlanceAppWidget() {
                     style = TextStyle(
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp,
-                        color = ColorProvider(Color.White)
+                        color = glanceColor(Color.White)
                     ),
                     maxLines = 1
                 )
@@ -334,7 +344,7 @@ class ScheduleWidget : GlanceAppWidget() {
                     Image(
                         provider = ImageProvider(R.drawable.ic_person),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(ColorProvider(Color(0xFFA5A3D0))),
+                        colorFilter = ColorFilter.tint(glanceColor(Color(0xFFA5A3D0))),
                         modifier = GlanceModifier.width(12.dp).height(12.dp)
                     )
                     Spacer(modifier = GlanceModifier.width(4.dp))
@@ -342,7 +352,7 @@ class ScheduleWidget : GlanceAppWidget() {
                         text = schedule.dosen.ifEmpty { schedule.kode_matkul },
                         style = TextStyle(
                             fontSize = 11.sp,
-                            color = ColorProvider(Color(0xFFA5A3D0))
+                            color = glanceColor(Color(0xFFA5A3D0))
                         ),
                         maxLines = 1
                     )
@@ -358,7 +368,7 @@ class ScheduleWidget : GlanceAppWidget() {
                     Image(
                         provider = ImageProvider(R.drawable.ic_clock),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(ColorProvider(accentColor)),
+                        colorFilter = ColorFilter.tint(glanceColor(accentColor)),
                         modifier = GlanceModifier.width(12.dp).height(12.dp)
                     )
                     Spacer(modifier = GlanceModifier.width(4.dp))
@@ -367,7 +377,7 @@ class ScheduleWidget : GlanceAppWidget() {
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
-                            color = ColorProvider(accentColor)
+                            color = glanceColor(accentColor)
                         )
                     )
                 }
@@ -377,14 +387,15 @@ class ScheduleWidget : GlanceAppWidget() {
                 // Location Pill
                 Box(
                     modifier = GlanceModifier
-                        .background(ColorProvider(accentColor))
+                        .cornerRadius(8.dp)
+                        .background(glanceColor(accentColor))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             provider = ImageProvider(R.drawable.ic_location),
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF201E50))),
+                            colorFilter = ColorFilter.tint(glanceColor(Color(0xFF201E50))),
                             modifier = GlanceModifier.width(10.dp).height(10.dp)
                         )
                         Spacer(modifier = GlanceModifier.width(4.dp))
@@ -393,7 +404,7 @@ class ScheduleWidget : GlanceAppWidget() {
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
-                                color = ColorProvider(Color(0xFF201E50))
+                                color = glanceColor(Color(0xFF201E50))
                             )
                         )
                     }
