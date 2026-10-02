@@ -2,19 +2,22 @@ package com.example.kstview
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.lazy.LazyColumn
-import androidx.glance.appwidget.lazy.items
+import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
@@ -33,6 +36,7 @@ import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import java.util.Calendar
@@ -57,7 +61,20 @@ class ScheduleWidget : GlanceAppWidget() {
             }
         }
 
-        fun formatJamWidget(jam: String): String {
+        fun formatDayTitle(dayStr: String): String {
+            return when (dayStr.uppercase()) {
+                "SENIN" -> "Senin"
+                "SELASA" -> "Selasa"
+                "RABU" -> "Rabu"
+                "KAMIS" -> "Kamis"
+                "JUMAT" -> "Jumat"
+                "SABTU" -> "Sabtu"
+                "MINGGU" -> "Minggu"
+                else -> dayStr.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            }
+        }
+
+        fun formatJamDisplay(jam: String): String {
             val clean = jam.trim()
             val parts = clean.split(Regex("""[-:]"""))
             if (parts.size == 2) {
@@ -69,6 +86,20 @@ class ScheduleWidget : GlanceAppWidget() {
             }
             return clean
         }
+
+        private val PASTEL_COLORS = listOf(
+            Color(0xFFFFA8C5), // Pink
+            Color(0xFF82ECC2), // Mint Green
+            Color(0xFFC3B1E1), // Lavender
+            Color(0xFF90E0EF)  // Soft Blue
+        )
+
+        private val COURSE_ICON_RES = listOf(
+            R.drawable.ic_analytics,
+            R.drawable.ic_code,
+            R.drawable.ic_book,
+            R.drawable.ic_school
+        )
     }
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -95,9 +126,7 @@ class ScheduleWidget : GlanceAppWidget() {
                 schedules
             }
 
-            GlanceTheme {
-                WidgetContent(viewType, todayIndoDay, displayedSchedules)
-            }
+            WidgetContent(viewType, todayIndoDay, displayedSchedules)
         }
     }
 
@@ -110,54 +139,97 @@ class ScheduleWidget : GlanceAppWidget() {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .background(GlanceTheme.colors.surface)
-                .padding(14.dp)
+                .background(ColorProvider(Color(0xFF201E50)))
+                .padding(16.dp)
                 .clickable(actionStartActivity<MainActivity>())
         ) {
-            // iOS Calendar Style Header Row
+            // Header Section
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = GlanceModifier.defaultWeight()) {
-                    Text(
-                        text = if (viewType == "daily") "JADWAL HARI INI" else "SEMUA KULIAH",
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            color = GlanceTheme.colors.primary
+                    // Subtitle: Calendar Icon + Jadwal hari ini
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_calendar),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(ColorProvider(Color(0xFFA5A3D0))),
+                            modifier = GlanceModifier.width(14.dp).height(14.dp)
                         )
-                    )
-                    Text(
-                        text = if (viewType == "daily") todayDayName else "${schedules.size} Mata Kuliah",
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = GlanceTheme.colors.onSurface
+                        Spacer(modifier = GlanceModifier.width(6.dp))
+                        Text(
+                            text = if (viewType == "daily") "Jadwal hari ini" else "Semua jadwal",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = ColorProvider(Color(0xFFA5A3D0))
+                            )
                         )
-                    )
+                    }
+
+                    Spacer(modifier = GlanceModifier.height(2.dp))
+
+                    // Title: Kamis. (or Semua.)
+                    val titleText = if (viewType == "daily") formatDayTitle(todayDayName) else "Semua"
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = titleText,
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp,
+                                color = ColorProvider(Color.White)
+                            )
+                        )
+                        Text(
+                            text = ".",
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp,
+                                color = ColorProvider(Color(0xFFFF5C8D))
+                            )
+                        )
+                    }
                 }
 
-                // Apple-style small pill tag
+                // Yellow Class Counter Badge: Book Icon + 2 kelas
                 Box(
                     modifier = GlanceModifier
-                        .background(GlanceTheme.colors.secondaryContainer)
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .background(ColorProvider(Color(0xFFFFE26A)))
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
-                    Text(
-                        text = if (viewType == "daily") "Hari Ini" else "Semua",
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp,
-                            color = GlanceTheme.colors.onSecondaryContainer
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_book),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF201E50))),
+                            modifier = GlanceModifier.width(14.dp).height(14.dp)
                         )
-                    )
+                        Spacer(modifier = GlanceModifier.width(6.dp))
+                        Text(
+                            text = "${schedules.size} kelas",
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = ColorProvider(Color(0xFF201E50))
+                            )
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = GlanceModifier.height(10.dp))
+            Spacer(modifier = GlanceModifier.height(12.dp))
 
-            // Schedule Items or Minimalist iOS Empty State
+            // Thin Horizontal Divider
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(ColorProvider(Color(0xFF34316E)))
+            ) {}
+
+            Spacer(modifier = GlanceModifier.height(12.dp))
+
+            // Schedule Items or Empty State
             if (schedules.isEmpty()) {
                 Box(
                     modifier = GlanceModifier
@@ -170,16 +242,16 @@ class ScheduleWidget : GlanceAppWidget() {
                             text = if (viewType == "daily") "Tidak Ada Kuliah Hari Ini" else "Jadwal Kosong",
                             style = TextStyle(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp,
-                                color = GlanceTheme.colors.onSurface
+                                fontSize = 14.sp,
+                                color = ColorProvider(Color.White)
                             )
                         )
                         Spacer(modifier = GlanceModifier.height(4.dp))
                         Text(
                             text = if (viewType == "daily") "Nikmati waktu luangmu ✨" else "Impor KST PDF di aplikasi",
                             style = TextStyle(
-                                fontSize = 11.sp,
-                                color = GlanceTheme.colors.onSurfaceVariant
+                                fontSize = 12.sp,
+                                color = ColorProvider(Color(0xFFA5A3D0))
                             )
                         )
                     }
@@ -188,9 +260,27 @@ class ScheduleWidget : GlanceAppWidget() {
                 LazyColumn(
                     modifier = GlanceModifier.fillMaxSize()
                 ) {
-                    items(schedules) { schedule ->
-                        WidgetItemCard(schedule = schedule, showDay = viewType == "full")
-                        Spacer(modifier = GlanceModifier.height(8.dp))
+                    itemsIndexed(schedules) { index, schedule ->
+                        val accentColor = PASTEL_COLORS[index % PASTEL_COLORS.size]
+                        val iconRes = COURSE_ICON_RES[index % COURSE_ICON_RES.size]
+
+                        WidgetItemRow(
+                            schedule = schedule,
+                            showDay = viewType == "full",
+                            accentColor = accentColor,
+                            iconRes = iconRes
+                        )
+
+                        if (index < schedules.size - 1) {
+                            Spacer(modifier = GlanceModifier.height(10.dp))
+                            Box(
+                                modifier = GlanceModifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(ColorProvider(Color(0xFF34316E)))
+                            ) {}
+                            Spacer(modifier = GlanceModifier.height(10.dp))
+                        }
                     }
                 }
             }
@@ -198,93 +288,115 @@ class ScheduleWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun WidgetItemCard(schedule: CourseSchedule, showDay: Boolean) {
+    private fun WidgetItemRow(
+        schedule: CourseSchedule,
+        showDay: Boolean,
+        accentColor: Color,
+        iconRes: Int
+    ) {
         Row(
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .background(GlanceTheme.colors.surfaceVariant)
-                .padding(10.dp),
+            modifier = GlanceModifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Left Timeline Accent Bar
+            // Left Icon Container Box
             Box(
                 modifier = GlanceModifier
-                    .width(4.dp)
-                    .height(38.dp)
-                    .background(GlanceTheme.colors.primary)
-            ) {}
+                    .width(42.dp)
+                    .height(42.dp)
+                    .background(ColorProvider(accentColor)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    provider = ImageProvider(iconRes),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF201E50))),
+                    modifier = GlanceModifier.width(22.dp).height(22.dp)
+                )
+            }
 
-            Spacer(modifier = GlanceModifier.width(10.dp))
+            Spacer(modifier = GlanceModifier.width(12.dp))
 
-            // Details Stack
+            // Center: Course Title & Lecturer
             Column(modifier = GlanceModifier.defaultWeight()) {
-                Row(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = formatJamWidget(schedule.jam),
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            color = GlanceTheme.colors.primary
-                        )
-                    )
-
-                    if (showDay) {
-                        Spacer(modifier = GlanceModifier.width(6.dp))
-                        Text(
-                            text = "· ${schedule.hari.uppercase()}",
-                            style = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp,
-                                color = GlanceTheme.colors.primary
-                            )
-                        )
-                    }
-
-                    Spacer(modifier = GlanceModifier.defaultWeight())
-
-                    Text(
-                        text = if (schedule.ruang.startsWith("Ruang", ignoreCase = true)) schedule.ruang else "Ruang ${schedule.ruang}",
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp,
-                            color = GlanceTheme.colors.onSurfaceVariant
-                        )
-                    )
-                }
-
-                Spacer(modifier = GlanceModifier.height(2.dp))
-
-                // Course Name
                 Text(
                     text = schedule.nama_matkul,
                     style = TextStyle(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        color = GlanceTheme.colors.onSurface
+                        fontSize = 13.sp,
+                        color = ColorProvider(Color.White)
                     ),
                     maxLines = 1
                 )
 
-                Spacer(modifier = GlanceModifier.height(1.dp))
+                Spacer(modifier = GlanceModifier.height(3.dp))
 
-                // Lecturer or Course Code
-                val metaText = when {
-                    schedule.dosen.isNotEmpty() -> schedule.dosen
-                    schedule.kode_matkul.isNotEmpty() -> schedule.kode_matkul
-                    else -> ""
-                }
-                if (metaText.isNotEmpty()) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_person),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(ColorProvider(Color(0xFFA5A3D0))),
+                        modifier = GlanceModifier.width(12.dp).height(12.dp)
+                    )
+                    Spacer(modifier = GlanceModifier.width(4.dp))
                     Text(
-                        text = metaText,
+                        text = schedule.dosen.ifEmpty { schedule.kode_matkul },
                         style = TextStyle(
-                            fontSize = 10.sp,
-                            color = GlanceTheme.colors.onSurfaceVariant
+                            fontSize = 11.sp,
+                            color = ColorProvider(Color(0xFFA5A3D0))
                         ),
                         maxLines = 1
                     )
+                }
+            }
+
+            Spacer(modifier = GlanceModifier.width(8.dp))
+
+            // Right: Time & Location Pill
+            Column(horizontalAlignment = Alignment.End) {
+                // Time Range Row
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_clock),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(ColorProvider(accentColor)),
+                        modifier = GlanceModifier.width(12.dp).height(12.dp)
+                    )
+                    Spacer(modifier = GlanceModifier.width(4.dp))
+                    Text(
+                        text = (if (showDay) "${schedule.hari} " else "") + formatJamDisplay(schedule.jam),
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            color = ColorProvider(accentColor)
+                        )
+                    )
+                }
+
+                Spacer(modifier = GlanceModifier.height(4.dp))
+
+                // Location Pill
+                Box(
+                    modifier = GlanceModifier
+                        .background(ColorProvider(accentColor))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_location),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF201E50))),
+                            modifier = GlanceModifier.width(10.dp).height(10.dp)
+                        )
+                        Spacer(modifier = GlanceModifier.width(4.dp))
+                        Text(
+                            text = if (schedule.ruang.startsWith("Ruang", ignoreCase = true)) schedule.ruang else "Ruang ${schedule.ruang}",
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp,
+                                color = ColorProvider(Color(0xFF201E50))
+                            )
+                        )
+                    }
                 }
             }
         }
