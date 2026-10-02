@@ -43,9 +43,8 @@ import kotlinx.serialization.json.Json
 import java.util.Calendar
 import java.util.Locale
 
-private fun glanceColor(color: Color): ColorProvider = object : ColorProvider {
-    override fun getColor(context: Context): Color = color
-}
+@Suppress("RestrictedApi")
+private fun glanceColor(color: Color): ColorProvider = ColorProvider(color)
 
 class ScheduleWidget : GlanceAppWidget() {
     override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
