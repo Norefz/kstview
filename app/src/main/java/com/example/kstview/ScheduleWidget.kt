@@ -16,7 +16,6 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.itemsIndexed
 import androidx.glance.appwidget.provideContent
@@ -45,6 +44,12 @@ import java.util.Locale
 
 @Suppress("RestrictedApi")
 private fun glanceColor(color: Color): ColorProvider = ColorProvider(color)
+
+data class CourseWidgetTheme(
+    val accentColor: Color,
+    val boxDrawable: Int,
+    val pillDrawable: Int
+)
 
 class ScheduleWidget : GlanceAppWidget() {
     override val stateDefinition: GlanceStateDefinition<*> = PreferencesGlanceStateDefinition
@@ -91,11 +96,11 @@ class ScheduleWidget : GlanceAppWidget() {
             return clean
         }
 
-        private val PASTEL_COLORS = listOf(
-            Color(0xFFFFA8C5), // Pink
-            Color(0xFF82ECC2), // Mint Green
-            Color(0xFFC3B1E1), // Lavender
-            Color(0xFF90E0EF)  // Soft Blue
+        private val PASTEL_THEMES = listOf(
+            CourseWidgetTheme(Color(0xFFFFA8C5), R.drawable.bg_pink_box, R.drawable.bg_pill_pink),
+            CourseWidgetTheme(Color(0xFF82ECC2), R.drawable.bg_mint_box, R.drawable.bg_pill_mint),
+            CourseWidgetTheme(Color(0xFFC3B1E1), R.drawable.bg_lavender_box, R.drawable.bg_pill_lavender),
+            CourseWidgetTheme(Color(0xFF90E0EF), R.drawable.bg_blue_box, R.drawable.bg_pill_blue)
         )
 
         private val COURSE_ICON_RES = listOf(
@@ -143,8 +148,7 @@ class ScheduleWidget : GlanceAppWidget() {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .cornerRadius(24.dp)
-                .background(glanceColor(Color(0xFF201E50)))
+                .background(ImageProvider(R.drawable.bg_widget_card))
                 .padding(16.dp)
                 .clickable(actionStartActivity<MainActivity>())
         ) {
@@ -199,8 +203,7 @@ class ScheduleWidget : GlanceAppWidget() {
                 // Yellow Class Counter Badge: Book Icon + 2 kelas
                 Box(
                     modifier = GlanceModifier
-                        .cornerRadius(16.dp)
-                        .background(glanceColor(Color(0xFFFFE26A)))
+                        .background(ImageProvider(R.drawable.bg_yellow_badge))
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -267,13 +270,13 @@ class ScheduleWidget : GlanceAppWidget() {
                     modifier = GlanceModifier.fillMaxSize()
                 ) {
                     itemsIndexed(schedules) { index, schedule ->
-                        val accentColor = PASTEL_COLORS[index % PASTEL_COLORS.size]
+                        val theme = PASTEL_THEMES[index % PASTEL_THEMES.size]
                         val iconRes = COURSE_ICON_RES[index % COURSE_ICON_RES.size]
 
                         WidgetItemRow(
                             schedule = schedule,
                             showDay = viewType == "full",
-                            accentColor = accentColor,
+                            theme = theme,
                             iconRes = iconRes
                         )
 
@@ -297,7 +300,7 @@ class ScheduleWidget : GlanceAppWidget() {
     private fun WidgetItemRow(
         schedule: CourseSchedule,
         showDay: Boolean,
-        accentColor: Color,
+        theme: CourseWidgetTheme,
         iconRes: Int
     ) {
         Row(
@@ -311,8 +314,7 @@ class ScheduleWidget : GlanceAppWidget() {
                 modifier = GlanceModifier
                     .width(42.dp)
                     .height(42.dp)
-                    .cornerRadius(12.dp)
-                    .background(glanceColor(accentColor)),
+                    .background(ImageProvider(theme.boxDrawable)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -367,7 +369,7 @@ class ScheduleWidget : GlanceAppWidget() {
                     Image(
                         provider = ImageProvider(R.drawable.ic_clock),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(glanceColor(accentColor)),
+                        colorFilter = ColorFilter.tint(glanceColor(theme.accentColor)),
                         modifier = GlanceModifier.width(12.dp).height(12.dp)
                     )
                     Spacer(modifier = GlanceModifier.width(4.dp))
@@ -376,7 +378,7 @@ class ScheduleWidget : GlanceAppWidget() {
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
-                            color = glanceColor(accentColor)
+                            color = glanceColor(theme.accentColor)
                         )
                     )
                 }
@@ -386,8 +388,7 @@ class ScheduleWidget : GlanceAppWidget() {
                 // Location Pill
                 Box(
                     modifier = GlanceModifier
-                        .cornerRadius(8.dp)
-                        .background(glanceColor(accentColor))
+                        .background(ImageProvider(theme.pillDrawable))
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
