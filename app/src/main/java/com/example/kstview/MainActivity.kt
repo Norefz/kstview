@@ -71,7 +71,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import com.example.kstview.ui.theme.KSTViewTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -133,6 +136,7 @@ fun MainScheduleScreen() {
                     schedules = parsed
                     val json = KstParser.toJson(parsed)
                     ScheduleDataStore.saveSchedule(context, json)
+                    updateAllWidgets(context)
                     Toast.makeText(context, "Parsed ${parsed.size} courses from PDF", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "No schedules found in PDF", Toast.LENGTH_LONG).show()
@@ -306,6 +310,7 @@ fun MainScheduleScreen() {
                     scope.launch {
                         ScheduleDataStore.saveSchedule(context, json)
                     }
+                    updateAllWidgets(context)
                     Toast.makeText(context, "Parsed ${parsed.size} courses", Toast.LENGTH_SHORT).show()
                     showPasteDialog = false
                 } else {
@@ -328,6 +333,7 @@ fun MainScheduleScreen() {
                         scope.launch {
                             ScheduleDataStore.saveSchedule(context, "[]")
                         }
+                        updateAllWidgets(context)
                         showClearDialog = false
                         Toast.makeText(context, "Schedule cleared", Toast.LENGTH_SHORT).show()
                     }
@@ -647,6 +653,16 @@ private fun parseScheduleJson(jsonStr: String): List<CourseSchedule> {
         Json.decodeFromString(jsonStr)
     } catch (_: Exception) {
         emptyList()
+    }
+}
+
+private fun updateAllWidgets(context: android.content.Context) {
+    CoroutineScope(Dispatchers.Default).launch {
+        try {
+            GlanceAppWidgetManager(context).getGlanceIds(ScheduleWidget::class.java).forEach { glanceId ->
+                ScheduleWidget().update(context, glanceId)
+            }
+        } catch (_: Exception) { }
     }
 }
 
