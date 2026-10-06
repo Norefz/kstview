@@ -233,7 +233,7 @@ class ScheduleWidget : GlanceAppWidget() {
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(glanceColor(Color(0xFF34316E)))
+                    .background(ImageProvider(R.drawable.divider_line))
             ) {}
 
             Spacer(modifier = GlanceModifier.height(12.dp))
@@ -277,19 +277,9 @@ class ScheduleWidget : GlanceAppWidget() {
                             schedule = schedule,
                             showDay = viewType == "full",
                             theme = theme,
-                            iconRes = iconRes
+                            iconRes = iconRes,
+                            showDivider = index < schedules.size - 1
                         )
-
-                        if (index < schedules.size - 1) {
-                            Spacer(modifier = GlanceModifier.height(10.dp))
-                            Box(
-                                modifier = GlanceModifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(glanceColor(Color(0xFF34316E)))
-                            ) {}
-                            Spacer(modifier = GlanceModifier.height(10.dp))
-                        }
                     }
                 }
             }
@@ -301,114 +291,128 @@ class ScheduleWidget : GlanceAppWidget() {
         schedule: CourseSchedule,
         showDay: Boolean,
         theme: CourseWidgetTheme,
-        iconRes: Int
+        iconRes: Int,
+        showDivider: Boolean
     ) {
-        Row(
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Left Icon Container Box
-            Box(
+        Column(modifier = GlanceModifier.fillMaxWidth()) {
+            Row(
                 modifier = GlanceModifier
-                    .width(42.dp)
-                    .height(42.dp)
-                    .background(ImageProvider(theme.boxDrawable)),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    provider = ImageProvider(iconRes),
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(glanceColor(Color(0xFF201E50))),
-                    modifier = GlanceModifier.width(22.dp).height(22.dp)
-                )
-            }
-
-            Spacer(modifier = GlanceModifier.width(12.dp))
-
-            // Center: Course Title & Lecturer
-            Column(modifier = GlanceModifier.defaultWeight()) {
-                Text(
-                    text = schedule.nama_matkul,
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        color = glanceColor(Color.White)
-                    ),
-                    maxLines = 1
-                )
-
-                Spacer(modifier = GlanceModifier.height(3.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Left Icon Container Box
+                Box(
+                    modifier = GlanceModifier
+                        .width(42.dp)
+                        .height(42.dp)
+                        .background(ImageProvider(theme.boxDrawable)),
+                    contentAlignment = Alignment.Center
+                ) {
                     Image(
-                        provider = ImageProvider(R.drawable.ic_person),
+                        provider = ImageProvider(iconRes),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(glanceColor(Color(0xFFA5A3D0))),
-                        modifier = GlanceModifier.width(12.dp).height(12.dp)
+                        colorFilter = ColorFilter.tint(glanceColor(Color(0xFF201E50))),
+                        modifier = GlanceModifier.width(22.dp).height(22.dp)
                     )
-                    Spacer(modifier = GlanceModifier.width(4.dp))
+                }
+
+                Spacer(modifier = GlanceModifier.width(12.dp))
+
+                // Center: Course Title & Lecturer
+                Column(modifier = GlanceModifier.defaultWeight()) {
                     Text(
-                        text = schedule.dosen.ifEmpty { schedule.kode_matkul },
+                        text = schedule.nama_matkul,
                         style = TextStyle(
-                            fontSize = 11.sp,
-                            color = glanceColor(Color(0xFFA5A3D0))
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = glanceColor(Color.White)
                         ),
                         maxLines = 1
                     )
-                }
-            }
 
-            Spacer(modifier = GlanceModifier.width(8.dp))
+                    Spacer(modifier = GlanceModifier.height(3.dp))
 
-            // Right: Time & Location Pill
-            Column(horizontalAlignment = Alignment.End) {
-                // Time Range Row
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        provider = ImageProvider(R.drawable.ic_clock),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(glanceColor(theme.accentColor)),
-                        modifier = GlanceModifier.width(12.dp).height(12.dp)
-                    )
-                    Spacer(modifier = GlanceModifier.width(4.dp))
-                    Text(
-                        text = (if (showDay) "${schedule.hari} " else "") + formatJamDisplay(schedule.jam),
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            color = glanceColor(theme.accentColor)
-                        )
-                    )
-                }
-
-                Spacer(modifier = GlanceModifier.height(4.dp))
-
-                // Location Pill
-                Box(
-                    modifier = GlanceModifier
-                        .background(ImageProvider(theme.pillDrawable))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            provider = ImageProvider(R.drawable.ic_location),
+                            provider = ImageProvider(R.drawable.ic_person),
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(glanceColor(Color(0xFF201E50))),
-                            modifier = GlanceModifier.width(10.dp).height(10.dp)
+                            colorFilter = ColorFilter.tint(glanceColor(theme.accentColor)),
+                            modifier = GlanceModifier.width(12.dp).height(12.dp)
                         )
                         Spacer(modifier = GlanceModifier.width(4.dp))
                         Text(
-                            text = if (schedule.ruang.startsWith("Ruang", ignoreCase = true)) schedule.ruang else "Ruang ${schedule.ruang}",
+                            text = schedule.dosen.ifEmpty { schedule.kode_matkul },
                             style = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp,
-                                color = glanceColor(Color(0xFF201E50))
-                            )
+                                fontSize = 11.sp,
+                                color = glanceColor(Color(0xFFA5A3D0))
+                            ),
+                            maxLines = 1
                         )
                     }
                 }
+
+                Spacer(modifier = GlanceModifier.width(8.dp))
+
+                // Right: Time & Location Pill
+                Column(horizontalAlignment = Alignment.End) {
+                    // Time Range Row
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_clock),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(glanceColor(theme.accentColor)),
+                            modifier = GlanceModifier.width(12.dp).height(12.dp)
+                        )
+                        Spacer(modifier = GlanceModifier.width(4.dp))
+                        Text(
+                            text = (if (showDay) "${schedule.hari} " else "") + formatJamDisplay(schedule.jam),
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                color = glanceColor(theme.accentColor)
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = GlanceModifier.height(4.dp))
+
+                    // Location Pill
+                    Box(
+                        modifier = GlanceModifier
+                            .background(ImageProvider(theme.pillDrawable))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                provider = ImageProvider(R.drawable.ic_location),
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(glanceColor(Color(0xFF201E50))),
+                                modifier = GlanceModifier.width(10.dp).height(10.dp)
+                            )
+                            Spacer(modifier = GlanceModifier.width(4.dp))
+                            Text(
+                                text = if (schedule.ruang.startsWith("Ruang", ignoreCase = true)) schedule.ruang else "Ruang ${schedule.ruang}",
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    color = glanceColor(Color(0xFF201E50))
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (showDivider) {
+                Spacer(modifier = GlanceModifier.height(8.dp))
+                Box(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(ImageProvider(R.drawable.divider_line))
+                ) {}
+                Spacer(modifier = GlanceModifier.height(8.dp))
             }
         }
     }
