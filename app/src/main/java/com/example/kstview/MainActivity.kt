@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,8 +30,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.CoPresent
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditNote
@@ -38,6 +43,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -46,12 +52,12 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -71,6 +77,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -696,140 +703,370 @@ fun AddEditScheduleDialog(
     }
     var namaMatkul by remember { mutableStateOf(initialSchedule?.nama_matkul ?: "") }
     var kodeMatkul by remember { mutableStateOf(initialSchedule?.kode_matkul ?: "") }
-    var jam by remember { mutableStateOf(initialSchedule?.jam ?: "") }
+
+    var jamMulai by remember {
+        mutableStateOf(
+            initialSchedule?.jam?.let {
+                val parts = it.split(Regex("""[-:]"""))
+                if (parts.size >= 2) ScheduleWidget.formatJamDisplay(parts[0]) else it
+            } ?: "08:00 AM"
+        )
+    }
+    var jamSelesai by remember {
+        mutableStateOf(
+            initialSchedule?.jam?.let {
+                val parts = it.split(Regex("""[-:]"""))
+                if (parts.size >= 2) ScheduleWidget.formatJamDisplay(parts[1]) else ""
+            } ?: "09:40 AM"
+        )
+    }
+
     var ruang by remember { mutableStateOf(initialSchedule?.ruang ?: "") }
     var dosen by remember { mutableStateOf(initialSchedule?.dosen ?: "") }
 
-    val daysList = listOf("SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU", "MINGGU")
+    val daysListShort = listOf(
+        "SENIN" to "Sen",
+        "SELASA" to "Sel",
+        "RABU" to "Rab",
+        "KAMIS" to "Kam",
+        "JUMAT" to "Jum",
+        "SABTU" to "Sab",
+        "MINGGU" to "Min"
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(
-                text = if (initialSchedule == null) "Tambah Jadwal Baru" else "Edit Jadwal",
-                fontWeight = FontWeight.Bold
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Top drag handle bar
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(36.dp)
+                            .height(4.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Header with blue calendar badge icon
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.EditNote,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column {
+                        Text(
+                            text = if (initialSchedule == null) "Tambah jadwal baru" else "Edit jadwal",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "$tipe · ${ScheduleWidget.formatDayTitle(hari)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         },
         text = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // Tipe Selection: Kuliah vs Ngasdos
-                Text(
-                    text = "Kategori / Tipe Jadwal",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                // Segmented Button: Kuliah vs Ngasdos
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    FilterChip(
-                        selected = tipe.equals("Kuliah", ignoreCase = true),
-                        onClick = { tipe = "Kuliah" },
-                        label = { Text("🎓 Kuliah") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = tipe.equals("Ngasdos", ignoreCase = true),
-                        onClick = { tipe = "Ngasdos" },
-                        label = { Text("👨‍🏫 Ngasdos") },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp)
+                    ) {
+                        val isKuliahSelected = tipe.equals("Kuliah", ignoreCase = true)
+                        Surface(
+                            onClick = { tipe = "Kuliah" },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isKuliahSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                            border = if (isKuliahSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)) else null,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (isKuliahSelected) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.School,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Kuliah",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
 
-                // Hari Selection
-                Text(
-                    text = "Hari",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    daysList.forEach { dayItem ->
-                        FilterChip(
-                            selected = hari.equals(dayItem, ignoreCase = true),
-                            onClick = { hari = dayItem },
-                            label = { Text(dayItem.take(3)) }
-                        )
+                        val isNgasdosSelected = tipe.equals("Ngasdos", ignoreCase = true)
+                        Surface(
+                            onClick = { tipe = "Ngasdos" },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isNgasdosSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                            border = if (isNgasdosSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)) else null,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(vertical = 10.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (isNgasdosSelected) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                }
+                                Icon(
+                                    imageVector = Icons.Default.CoPresent,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Ngasdos",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
                     }
                 }
 
-                // Nama Mata Kuliah
+                // Hari Selection Pills
+                Column {
+                    Text(
+                        text = "Hari",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        daysListShort.forEach { (fullDay, shortDay) ->
+                            val isSelected = hari.equals(fullDay, ignoreCase = true)
+                            Surface(
+                                onClick = { hari = fullDay },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surfaceContainerHigh,
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (isSelected) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                ),
+                                modifier = Modifier.weight(1f).padding(horizontal = 2.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = shortDay,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Field 1: Nama matkul / kegiatan (Full-Width)
                 OutlinedTextField(
                     value = namaMatkul,
                     onValueChange = { namaMatkul = it },
-                    label = { Text("Nama Matkul / Kegiatan *") },
-                    placeholder = { Text("e.g. Pemrograman Berbasis Objek") },
+                    placeholder = { Text("Nama matkul / kegiatan") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                            contentDescription = null,
+                            tint = Color(0xFF64B5F6),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                // Row 1: Mulai & Selesai (Time Fields)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Jam / Waktu
                     OutlinedTextField(
-                        value = jam,
-                        onValueChange = { jam = it },
-                        label = { Text("Jam / Waktu *") },
-                        placeholder = { Text("07:00 - 09:30") },
+                        value = jamMulai,
+                        onValueChange = { jamMulai = it },
+                        label = { Text("Mulai", color = Color(0xFFFFB74D)) },
+                        placeholder = { Text("08:00 AM") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = null,
+                                tint = Color(0xFFFFB74D),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFFB74D),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
                         modifier = Modifier.weight(1f)
                     )
 
-                    // Kode Matkul
+                    OutlinedTextField(
+                        value = jamSelesai,
+                        onValueChange = { jamSelesai = it },
+                        label = { Text("Selesai", color = Color(0xFFFFB74D)) },
+                        placeholder = { Text("09:40 AM") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Schedule,
+                                contentDescription = null,
+                                tint = Color(0xFFFFB74D),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFFB74D),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // Row 2: Kode & Ruang / lab
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     OutlinedTextField(
                         value = kodeMatkul,
                         onValueChange = { kodeMatkul = it },
-                        label = { Text("Kode Matkul") },
-                        placeholder = { Text("TC719B") },
+                        placeholder = { Text("Kode") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Code,
+                                contentDescription = null,
+                                tint = Color(0xFFB39DDB),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         modifier = Modifier.weight(1f)
                     )
-                }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Ruang
                     OutlinedTextField(
                         value = ruang,
                         onValueChange = { ruang = it },
-                        label = { Text("Ruang / Lab") },
-                        placeholder = { Text("IF-101 / Lab AI") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    // Dosen / Koordinator
-                    OutlinedTextField(
-                        value = dosen,
-                        onValueChange = { dosen = it },
-                        label = { Text("Dosen / Dosen PJ") },
-                        placeholder = { Text("Nama Dosen") },
+                        placeholder = { Text("Ruang / lab") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                tint = Color(0xFFEF9A9A),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         modifier = Modifier.weight(1f)
                     )
                 }
+
+                // Field 2: Dosen / dosen PJ (Full-Width with Green Icon/Border)
+                OutlinedTextField(
+                    value = dosen,
+                    onValueChange = { dosen = it },
+                    placeholder = { Text("Dosen / dosen PJ") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = Color(0xFF81C784),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF81C784),
+                        unfocusedBorderColor = Color(0xFF81C784).copy(alpha = 0.4f)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
+                    val combinedJam = if (jamSelesai.isNotBlank()) "$jamMulai - $jamSelesai" else jamMulai
                     onSaveSchedule(
                         CourseSchedule(
                             hari = if (hari == "ALL") "SENIN" else hari.uppercase(),
-                            jam = jam,
+                            jam = combinedJam,
                             ruang = ruang,
                             kode_matkul = kodeMatkul,
                             nama_matkul = namaMatkul,
@@ -838,14 +1075,25 @@ fun AddEditScheduleDialog(
                         )
                     )
                 },
-                enabled = namaMatkul.isNotBlank() && jam.isNotBlank()
+                enabled = namaMatkul.isNotBlank() && jamMulai.isNotBlank(),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Simpan")
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Simpan", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Batal")
+            OutlinedButton(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+            ) {
+                Text("Batal", color = MaterialTheme.colorScheme.onSurface)
             }
         }
     )
