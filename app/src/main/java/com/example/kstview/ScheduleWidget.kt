@@ -346,8 +346,13 @@ class ScheduleWidget : GlanceAppWidget() {
                             modifier = GlanceModifier.width(12.dp).height(12.dp)
                         )
                         Spacer(modifier = GlanceModifier.width(4.dp))
+                        val subtitleText = if (schedule.tipe.equals("Ngasdos", ignoreCase = true)) {
+                            "[Ngasdos] " + schedule.dosen.ifEmpty { schedule.kode_matkul }
+                        } else {
+                            schedule.dosen.ifEmpty { schedule.kode_matkul }
+                        }
                         Text(
-                            text = schedule.dosen.ifEmpty { schedule.kode_matkul },
+                            text = subtitleText,
                             style = TextStyle(
                                 fontSize = 11.sp,
                                 color = glanceColor(Color(0xFFA5A3D0))

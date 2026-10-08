@@ -11,16 +11,22 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class CourseSchedule(
-    val hari: String,
-    val jam: String,
-    val ruang: String,
-    val kode_matkul: String,
-    val nama_matkul: String,
-    val dosen: String
+    val hari: String = "",
+    val jam: String = "",
+    val ruang: String = "",
+    val kode_matkul: String = "",
+    val nama_matkul: String = "",
+    val dosen: String = "",
+    val tipe: String = "Kuliah"
 )
 
 object KstParser {
-    private val json = Json { prettyPrint = true }
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+        encodeDefaults = true
+    }
 
     fun extractTextFromPdf(context: Context, uri: Uri): String {
         PDFBoxResourceLoader.init(context)
