@@ -932,112 +932,85 @@ fun AddEditScheduleDialog(
                 }
 
                 // Field 1: Nama matkul (Full-Width)
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    OutlinedTextField(
-                        value = namaMatkul,
-                        onValueChange = { namaMatkul = it },
-                        label = { Text("Nama matkul", style = MaterialTheme.typography.labelSmall) },
-                        placeholder = { Text("Nama matkul", style = MaterialTheme.typography.bodyMedium) },
-                        prefix = { Spacer(modifier = Modifier.width(18.dp)) },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedLabelColor = Color(0xFF64B5F6),
-                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                            focusedBorderColor = Color(0xFF64B5F6),
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        ),
-                        modifier = Modifier.fillMaxWidth().height(60.dp)
-                    )
-                    Box(
-                        modifier = Modifier.padding(start = 12.dp).size(18.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
+                OutlinedTextField(
+                    value = namaMatkul,
+                    onValueChange = { namaMatkul = it },
+                    label = { Text("Nama matkul", style = MaterialTheme.typography.labelSmall) },
+                    placeholder = { Text("Nama matkul", style = MaterialTheme.typography.bodyMedium) },
+                    leadingIcon = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
                             tint = Color(0xFF64B5F6),
                             modifier = Modifier.size(16.dp)
                         )
-                    }
-                }
+                    },
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = Color(0xFF64B5F6),
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        focusedBorderColor = Color(0xFF64B5F6),
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                    ),
+                    modifier = Modifier.fillMaxWidth().height(60.dp)
+                )
 
                 // Row 1: Mulai & Selesai (Time Fields)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        OutlinedTextField(
-                            value = jamMulai,
-                            onValueChange = { jamMulai = it },
-                            label = { Text("Mulai", style = MaterialTheme.typography.labelSmall) },
-                            placeholder = { Text("08:00 AM", style = MaterialTheme.typography.bodyMedium) },
-                            prefix = { Spacer(modifier = Modifier.width(18.dp)) },
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedLabelColor = Color(0xFFFFB74D),
-                                unfocusedLabelColor = Color(0xFFFFB74D),
-                                focusedBorderColor = Color(0xFFFFB74D),
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                            ),
-                            modifier = Modifier.fillMaxWidth().height(60.dp)
-                        )
-                        Box(
-                            modifier = Modifier.padding(start = 12.dp).size(18.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
+                    OutlinedTextField(
+                        value = jamMulai,
+                        onValueChange = { jamMulai = it },
+                        label = { Text("Mulai", style = MaterialTheme.typography.labelSmall) },
+                        placeholder = { Text("08:00 AM", style = MaterialTheme.typography.bodyMedium) },
+                        leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Schedule,
                                 contentDescription = null,
                                 tint = Color(0xFFFFB74D),
                                 modifier = Modifier.size(16.dp)
                             )
-                        }
-                    }
+                        },
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedLabelColor = Color(0xFFFFB74D),
+                            unfocusedLabelColor = Color(0xFFFFB74D),
+                            focusedBorderColor = Color(0xFFFFB74D),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
+                        modifier = Modifier.weight(1f).height(60.dp)
+                    )
 
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        OutlinedTextField(
-                            value = jamSelesai,
-                            onValueChange = { jamSelesai = it },
-                            label = { Text("Selesai", style = MaterialTheme.typography.labelSmall) },
-                            placeholder = { Text("09:40 AM", style = MaterialTheme.typography.bodyMedium) },
-                            prefix = { Spacer(modifier = Modifier.width(18.dp)) },
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedLabelColor = Color(0xFFFFB74D),
-                                unfocusedLabelColor = Color(0xFFFFB74D),
-                                focusedBorderColor = Color(0xFFFFB74D),
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                            ),
-                            modifier = Modifier.fillMaxWidth().height(60.dp)
-                        )
-                        Box(
-                            modifier = Modifier.padding(start = 12.dp).size(18.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
+                    OutlinedTextField(
+                        value = jamSelesai,
+                        onValueChange = { jamSelesai = it },
+                        label = { Text("Selesai", style = MaterialTheme.typography.labelSmall) },
+                        placeholder = { Text("09:40 AM", style = MaterialTheme.typography.bodyMedium) },
+                        leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Schedule,
                                 contentDescription = null,
                                 tint = Color(0xFFFFB74D),
                                 modifier = Modifier.size(16.dp)
                             )
-                        }
-                    }
+                        },
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedLabelColor = Color(0xFFFFB74D),
+                            unfocusedLabelColor = Color(0xFFFFB74D),
+                            focusedBorderColor = Color(0xFFFFB74D),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
+                        modifier = Modifier.weight(1f).height(60.dp)
+                    )
                 }
 
                 // Row 2: Kode & Ruang
@@ -1045,109 +1018,82 @@ fun AddEditScheduleDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        OutlinedTextField(
-                            value = kodeMatkul,
-                            onValueChange = { kodeMatkul = it },
-                            label = { Text("Kode", style = MaterialTheme.typography.labelSmall) },
-                            placeholder = { Text("Kode", style = MaterialTheme.typography.bodyMedium) },
-                            prefix = { Spacer(modifier = Modifier.width(18.dp)) },
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedLabelColor = Color(0xFFB39DDB),
-                                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                                focusedBorderColor = Color(0xFFB39DDB),
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                            ),
-                            modifier = Modifier.fillMaxWidth().height(60.dp)
-                        )
-                        Box(
-                            modifier = Modifier.padding(start = 12.dp).size(18.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
+                    OutlinedTextField(
+                        value = kodeMatkul,
+                        onValueChange = { kodeMatkul = it },
+                        label = { Text("Kode", style = MaterialTheme.typography.labelSmall) },
+                        placeholder = { Text("Kode", style = MaterialTheme.typography.bodyMedium) },
+                        leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Code,
                                 contentDescription = null,
                                 tint = Color(0xFFB39DDB),
                                 modifier = Modifier.size(16.dp)
                             )
-                        }
-                    }
+                        },
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedLabelColor = Color(0xFFB39DDB),
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            focusedBorderColor = Color(0xFFB39DDB),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
+                        modifier = Modifier.weight(1f).height(60.dp)
+                    )
 
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        OutlinedTextField(
-                            value = ruang,
-                            onValueChange = { ruang = it },
-                            label = { Text("Ruang", style = MaterialTheme.typography.labelSmall) },
-                            placeholder = { Text("Ruang", style = MaterialTheme.typography.bodyMedium) },
-                            prefix = { Spacer(modifier = Modifier.width(18.dp)) },
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedLabelColor = Color(0xFFEF9A9A),
-                                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                                focusedBorderColor = Color(0xFFEF9A9A),
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                            ),
-                            modifier = Modifier.fillMaxWidth().height(60.dp)
-                        )
-                        Box(
-                            modifier = Modifier.padding(start = 12.dp).size(18.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
+                    OutlinedTextField(
+                        value = ruang,
+                        onValueChange = { ruang = it },
+                        label = { Text("Ruang", style = MaterialTheme.typography.labelSmall) },
+                        placeholder = { Text("Ruang", style = MaterialTheme.typography.bodyMedium) },
+                        leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = null,
                                 tint = Color(0xFFEF9A9A),
                                 modifier = Modifier.size(16.dp)
                             )
-                        }
-                    }
-                }
-
-                // Field 2: Dosen (Full-Width with Green Icon/Border)
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    OutlinedTextField(
-                        value = dosen,
-                        onValueChange = { dosen = it },
-                        label = { Text("Dosen", style = MaterialTheme.typography.labelSmall) },
-                        placeholder = { Text("Dosen", style = MaterialTheme.typography.bodyMedium) },
-                        prefix = { Spacer(modifier = Modifier.width(18.dp)) },
+                        },
                         textStyle = MaterialTheme.typography.bodyMedium,
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedLabelColor = Color(0xFF81C784),
+                            focusedLabelColor = Color(0xFFEF9A9A),
                             unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                            focusedBorderColor = Color(0xFF81C784),
-                            unfocusedBorderColor = Color(0xFF81C784).copy(alpha = 0.4f)
+                            focusedBorderColor = Color(0xFFEF9A9A),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                         ),
-                        modifier = Modifier.fillMaxWidth().height(62.dp)
+                        modifier = Modifier.weight(1f).height(60.dp)
                     )
-                    Box(
-                        modifier = Modifier.padding(start = 12.dp).size(18.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
+                }
+
+                // Field 2: Dosen (Full-Width with Green Icon/Border)
+                OutlinedTextField(
+                    value = dosen,
+                    onValueChange = { dosen = it },
+                    label = { Text("Dosen", style = MaterialTheme.typography.labelSmall) },
+                    placeholder = { Text("Dosen", style = MaterialTheme.typography.bodyMedium) },
+                    leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
                             tint = Color(0xFF81C784),
                             modifier = Modifier.size(16.dp)
                         )
-                    }
-                }
+                    },
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = Color(0xFF81C784),
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        focusedBorderColor = Color(0xFF81C784),
+                        unfocusedBorderColor = Color(0xFF81C784).copy(alpha = 0.4f)
+                    ),
+                    modifier = Modifier.fillMaxWidth().height(62.dp)
+                )
             }
         },
         confirmButton = {
