@@ -932,6 +932,7 @@ fun AddEditScheduleDialog(
                 OutlinedTextField(
                     value = namaMatkul,
                     onValueChange = { namaMatkul = it },
+                    label = { Text("Nama matkul / kegiatan") },
                     placeholder = { Text("Nama matkul / kegiatan") },
                     leadingIcon = {
                         Icon(
@@ -943,7 +944,13 @@ fun AddEditScheduleDialog(
                     },
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = Color(0xFF64B5F6),
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        focusedBorderColor = Color(0xFF64B5F6),
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                    ),
+                    modifier = Modifier.fillMaxWidth().height(62.dp)
                 )
 
                 // Row 1: Mulai & Selesai (Time Fields)
@@ -954,7 +961,7 @@ fun AddEditScheduleDialog(
                     OutlinedTextField(
                         value = jamMulai,
                         onValueChange = { jamMulai = it },
-                        label = { Text("Mulai", color = Color(0xFFFFB74D)) },
+                        label = { Text("Mulai") },
                         placeholder = { Text("08:00 AM") },
                         leadingIcon = {
                             Icon(
@@ -967,16 +974,18 @@ fun AddEditScheduleDialog(
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedLabelColor = Color(0xFFFFB74D),
+                            unfocusedLabelColor = Color(0xFFFFB74D),
                             focusedBorderColor = Color(0xFFFFB74D),
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).height(62.dp)
                     )
 
                     OutlinedTextField(
                         value = jamSelesai,
                         onValueChange = { jamSelesai = it },
-                        label = { Text("Selesai", color = Color(0xFFFFB74D)) },
+                        label = { Text("Selesai") },
                         placeholder = { Text("09:40 AM") },
                         leadingIcon = {
                             Icon(
@@ -989,10 +998,12 @@ fun AddEditScheduleDialog(
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedLabelColor = Color(0xFFFFB74D),
+                            unfocusedLabelColor = Color(0xFFFFB74D),
                             focusedBorderColor = Color(0xFFFFB74D),
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).height(62.dp)
                     )
                 }
 
@@ -1004,6 +1015,7 @@ fun AddEditScheduleDialog(
                     OutlinedTextField(
                         value = kodeMatkul,
                         onValueChange = { kodeMatkul = it },
+                        label = { Text("Kode") },
                         placeholder = { Text("Kode") },
                         leadingIcon = {
                             Icon(
@@ -1015,12 +1027,19 @@ fun AddEditScheduleDialog(
                         },
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
-                        modifier = Modifier.weight(1f)
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedLabelColor = Color(0xFFB39DDB),
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            focusedBorderColor = Color(0xFFB39DDB),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
+                        modifier = Modifier.weight(1f).height(62.dp)
                     )
 
                     OutlinedTextField(
                         value = ruang,
                         onValueChange = { ruang = it },
+                        label = { Text("Ruang / lab") },
                         placeholder = { Text("Ruang / lab") },
                         leadingIcon = {
                             Icon(
@@ -1032,7 +1051,13 @@ fun AddEditScheduleDialog(
                         },
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
-                        modifier = Modifier.weight(1f)
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedLabelColor = Color(0xFFEF9A9A),
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            focusedBorderColor = Color(0xFFEF9A9A),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
+                        modifier = Modifier.weight(1f).height(62.dp)
                     )
                 }
 
@@ -1040,6 +1065,7 @@ fun AddEditScheduleDialog(
                 OutlinedTextField(
                     value = dosen,
                     onValueChange = { dosen = it },
+                    label = { Text("Dosen / dosen PJ") },
                     placeholder = { Text("Dosen / dosen PJ") },
                     leadingIcon = {
                         Icon(
@@ -1052,10 +1078,12 @@ fun AddEditScheduleDialog(
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = Color(0xFF81C784),
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                         focusedBorderColor = Color(0xFF81C784),
                         unfocusedBorderColor = Color(0xFF81C784).copy(alpha = 0.4f)
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().height(62.dp)
                 )
             }
         },
