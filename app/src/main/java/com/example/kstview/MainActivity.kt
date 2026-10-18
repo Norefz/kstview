@@ -928,18 +928,18 @@ fun AddEditScheduleDialog(
                     }
                 }
 
-                // Field 1: Nama matkul / kegiatan (Full-Width)
+                // Field 1: Nama matkul (Full-Width)
                 OutlinedTextField(
                     value = namaMatkul,
                     onValueChange = { namaMatkul = it },
-                    label = { Text("Nama matkul / kegiatan") },
-                    placeholder = { Text("Nama matkul / kegiatan") },
+                    label = { Text("Nama matkul") },
+                    placeholder = { Text("Nama matkul") },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
                             tint = Color(0xFF64B5F6),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                     },
                     shape = RoundedCornerShape(12.dp),
@@ -968,9 +968,10 @@ fun AddEditScheduleDialog(
                                 imageVector = Icons.Default.Schedule,
                                 contentDescription = null,
                                 tint = Color(0xFFFFB74D),
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(16.dp)
                             )
                         },
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
@@ -992,9 +993,10 @@ fun AddEditScheduleDialog(
                                 imageVector = Icons.Default.Schedule,
                                 contentDescription = null,
                                 tint = Color(0xFFFFB74D),
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(16.dp)
                             )
                         },
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
@@ -1007,7 +1009,7 @@ fun AddEditScheduleDialog(
                     )
                 }
 
-                // Row 2: Kode & Ruang / lab
+                // Row 2: Kode & Ruang
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -1022,7 +1024,7 @@ fun AddEditScheduleDialog(
                                 imageVector = Icons.Default.Code,
                                 contentDescription = null,
                                 tint = Color(0xFFB39DDB),
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         },
                         shape = RoundedCornerShape(12.dp),
@@ -1039,14 +1041,14 @@ fun AddEditScheduleDialog(
                     OutlinedTextField(
                         value = ruang,
                         onValueChange = { ruang = it },
-                        label = { Text("Ruang / lab") },
-                        placeholder = { Text("Ruang / lab") },
+                        label = { Text("Ruang") },
+                        placeholder = { Text("Ruang") },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = null,
                                 tint = Color(0xFFEF9A9A),
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         },
                         shape = RoundedCornerShape(12.dp),
@@ -1061,18 +1063,18 @@ fun AddEditScheduleDialog(
                     )
                 }
 
-                // Field 2: Dosen / dosen PJ (Full-Width with Green Icon/Border)
+                // Field 2: Dosen (Full-Width with Green Icon/Border)
                 OutlinedTextField(
                     value = dosen,
                     onValueChange = { dosen = it },
-                    label = { Text("Dosen / dosen PJ") },
-                    placeholder = { Text("Dosen / dosen PJ") },
+                    label = { Text("Dosen") },
+                    placeholder = { Text("Dosen") },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
                             tint = Color(0xFF81C784),
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                     },
                     shape = RoundedCornerShape(12.dp),
