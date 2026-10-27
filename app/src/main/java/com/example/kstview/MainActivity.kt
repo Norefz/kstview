@@ -694,6 +694,77 @@ fun EmptyScheduleView(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomScheduleTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    icon: ImageVector,
+    iconColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.height(60.dp),
+        interactionSource = interactionSource,
+        singleLine = true,
+        textStyle = MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface
+        ),
+        decorationBox = @Composable { innerTextField ->
+            OutlinedTextFieldDefaults.DecorationBox(
+                value = value,
+                innerTextField = innerTextField,
+                enabled = true,
+                singleLine = true,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = interactionSource,
+                label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                placeholder = { Text(placeholder, style = MaterialTheme.typography.bodyMedium) },
+                leadingIcon = {
+                    Box(
+                        modifier = Modifier
+                            .width(22.dp)
+                            .padding(start = 2.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = iconColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedLabelColor = iconColor,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    focusedBorderColor = iconColor,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
+                contentPadding = PaddingValues(start = 0.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
+                container = {
+                    OutlinedTextFieldDefaults.ContainerBox(
+                        enabled = true,
+                        isError = false,
+                        interactionSource = interactionSource,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = iconColor,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            )
+        }
+    )
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AddEditScheduleDialog(
@@ -936,29 +1007,14 @@ fun AddEditScheduleDialog(
                 }
 
                 // Field 1: Nama matkul (Full-Width)
-                OutlinedTextField(
+                CustomScheduleTextField(
                     value = namaMatkul,
                     onValueChange = { namaMatkul = it },
-                    label = { Text("Nama matkul", style = MaterialTheme.typography.labelSmall) },
-                    placeholder = { Text("Nama matkul", style = MaterialTheme.typography.bodyMedium) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
-                            tint = Color(0xFF64B5F6),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    },
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedLabelColor = Color(0xFF64B5F6),
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        focusedBorderColor = Color(0xFF64B5F6),
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                    ),
-                    modifier = Modifier.fillMaxWidth().height(60.dp)
+                    label = "Nama matkul",
+                    placeholder = "Nama matkul",
+                    icon = Icons.AutoMirrored.Filled.MenuBook,
+                    iconColor = Color(0xFF64B5F6),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 // Row 1: Mulai & Selesai (Time Fields)
@@ -966,54 +1022,24 @@ fun AddEditScheduleDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    OutlinedTextField(
+                    CustomScheduleTextField(
                         value = jamMulai,
                         onValueChange = { jamMulai = it },
-                        label = { Text("Mulai", style = MaterialTheme.typography.labelSmall) },
-                        placeholder = { Text("08:00 AM", style = MaterialTheme.typography.bodyMedium) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Schedule,
-                                contentDescription = null,
-                                tint = Color(0xFFFFB74D),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedLabelColor = Color(0xFFFFB74D),
-                            unfocusedLabelColor = Color(0xFFFFB74D),
-                            focusedBorderColor = Color(0xFFFFB74D),
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        ),
-                        modifier = Modifier.weight(1f).height(60.dp)
+                        label = "Mulai",
+                        placeholder = "08:00 AM",
+                        icon = Icons.Default.Schedule,
+                        iconColor = Color(0xFFFFB74D),
+                        modifier = Modifier.weight(1f)
                     )
 
-                    OutlinedTextField(
+                    CustomScheduleTextField(
                         value = jamSelesai,
                         onValueChange = { jamSelesai = it },
-                        label = { Text("Selesai", style = MaterialTheme.typography.labelSmall) },
-                        placeholder = { Text("09:40 AM", style = MaterialTheme.typography.bodyMedium) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Schedule,
-                                contentDescription = null,
-                                tint = Color(0xFFFFB74D),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedLabelColor = Color(0xFFFFB74D),
-                            unfocusedLabelColor = Color(0xFFFFB74D),
-                            focusedBorderColor = Color(0xFFFFB74D),
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        ),
-                        modifier = Modifier.weight(1f).height(60.dp)
+                        label = "Selesai",
+                        placeholder = "09:40 AM",
+                        icon = Icons.Default.Schedule,
+                        iconColor = Color(0xFFFFB74D),
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -1022,81 +1048,36 @@ fun AddEditScheduleDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    OutlinedTextField(
+                    CustomScheduleTextField(
                         value = kodeMatkul,
                         onValueChange = { kodeMatkul = it },
-                        label = { Text("Kode", style = MaterialTheme.typography.labelSmall) },
-                        placeholder = { Text("Kode", style = MaterialTheme.typography.bodyMedium) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Code,
-                                contentDescription = null,
-                                tint = Color(0xFFB39DDB),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedLabelColor = Color(0xFFB39DDB),
-                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                            focusedBorderColor = Color(0xFFB39DDB),
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        ),
-                        modifier = Modifier.weight(1f).height(60.dp)
+                        label = "Kode",
+                        placeholder = "Kode",
+                        icon = Icons.Default.Code,
+                        iconColor = Color(0xFFB39DDB),
+                        modifier = Modifier.weight(1f)
                     )
 
-                    OutlinedTextField(
+                    CustomScheduleTextField(
                         value = ruang,
                         onValueChange = { ruang = it },
-                        label = { Text("Ruang", style = MaterialTheme.typography.labelSmall) },
-                        placeholder = { Text("Ruang", style = MaterialTheme.typography.bodyMedium) },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = null,
-                                tint = Color(0xFFEF9A9A),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        },
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedLabelColor = Color(0xFFEF9A9A),
-                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                            focusedBorderColor = Color(0xFFEF9A9A),
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        ),
-                        modifier = Modifier.weight(1f).height(60.dp)
+                        label = "Ruang",
+                        placeholder = "Ruang",
+                        icon = Icons.Default.LocationOn,
+                        iconColor = Color(0xFFEF9A9A),
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
                 // Field 2: Dosen (Full-Width with Green Icon/Border)
-                OutlinedTextField(
+                CustomScheduleTextField(
                     value = dosen,
                     onValueChange = { dosen = it },
-                    label = { Text("Dosen", style = MaterialTheme.typography.labelSmall) },
-                    placeholder = { Text("Dosen", style = MaterialTheme.typography.bodyMedium) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = Color(0xFF81C784),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    },
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedLabelColor = Color(0xFF81C784),
-                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        focusedBorderColor = Color(0xFF81C784),
-                        unfocusedBorderColor = Color(0xFF81C784).copy(alpha = 0.4f)
-                    ),
-                    modifier = Modifier.fillMaxWidth().height(62.dp)
+                    label = "Dosen",
+                    placeholder = "Dosen",
+                    icon = Icons.Default.Person,
+                    iconColor = Color(0xFF81C784),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
