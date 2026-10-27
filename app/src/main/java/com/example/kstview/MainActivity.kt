@@ -1,5 +1,6 @@
 package com.example.kstview
 
+import android.app.TimePickerDialog
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -10,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,8 +71,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -694,6 +698,51 @@ fun EmptyScheduleView(
     }
 }
 
+tailrec fun android.content.Context.findActivity(): android.app.Activity? = when (this) {
+    is android.app.Activity -> this
+    is android.content.ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
+private fun showTimePicker(
+    context: android.content.Context,
+    initialTimeStr: String,
+    onTimeSelected: (String) -> Unit
+) {
+    var hour = 8
+    var minute = 0
+
+    try {
+        val clean = initialTimeStr.trim()
+        val isPm = clean.contains("PM", ignoreCase = true)
+        val isAm = clean.contains("AM", ignoreCase = true)
+
+        val parts = clean.replace(Regex("""(?i)[a-z]"""), "").trim().split(Regex("""[:\s]"""))
+        if (parts.isNotEmpty()) {
+            parts[0].trim().toIntOrNull()?.let { hour = it }
+        }
+        if (parts.size >= 2) {
+            parts[1].trim().toIntOrNull()?.let { minute = it }
+        }
+
+        if (isPm && hour < 12) hour += 12
+        if (isAm && hour == 12) hour = 0
+    } catch (_: Exception) {}
+
+    val activity = context.findActivity() ?: return
+
+    TimePickerDialog(
+        activity,
+        { _, selectedHour, selectedMinute ->
+            val formattedTime = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
+            onTimeSelected(formattedTime)
+        },
+        hour,
+        minute,
+        true
+    ).show()
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomScheduleTextField(
@@ -703,85 +752,105 @@ fun CustomScheduleTextField(
     placeholder: String,
     icon: ImageVector,
     iconColor: Color,
+    readOnly: Boolean = false,
+    onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier.height(60.dp),
-        interactionSource = interactionSource,
-        singleLine = true,
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        decorationBox = @Composable { innerTextField ->
-            OutlinedTextFieldDefaults.DecorationBox(
-                value = value,
-                innerTextField = {
-                    Box(modifier = Modifier.offset(x = (-8).dp)) {
-                        innerTextField()
-                    }
-                },
-                enabled = true,
-                singleLine = true,
-                visualTransformation = VisualTransformation.None,
-                interactionSource = interactionSource,
-                label = {
-                    Text(
-                        label,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.offset(x = (-8).dp)
-                    )
-                },
-                placeholder = {
-                    Text(
-                        placeholder,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.offset(x = (-8).dp)
-                    )
-                },
-                leadingIcon = {
-                    Box(
-                        modifier = Modifier
-                            .width(18.dp)
-                            .padding(start = 2.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = iconColor,
-                            modifier = Modifier.size(16.dp)
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.CenterStart
+    ) {
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            readOnly = readOnly,
+            modifier = Modifier.fillMaxWidth().height(60.dp),
+            interactionSource = interactionSource,
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            decorationBox = @Composable { innerTextField ->
+                OutlinedTextFieldDefaults.DecorationBox(
+                    value = value,
+                    innerTextField = {
+                        Box(modifier = Modifier.offset(x = (-8).dp)) {
+                            innerTextField()
+                        }
+                    },
+                    enabled = true,
+                    singleLine = true,
+                    visualTransformation = VisualTransformation.None,
+                    interactionSource = interactionSource,
+                    label = {
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.offset(x = (-8).dp)
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            placeholder,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.offset(x = (-8).dp)
+                        )
+                    },
+                    leadingIcon = {
+                        Box(
+                            modifier = Modifier
+                                .width(18.dp)
+                                .padding(start = 2.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = iconColor,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedLabelColor = iconColor,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        focusedBorderColor = iconColor,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                    ),
+                    contentPadding = PaddingValues(start = 0.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+                    container = {
+                        OutlinedTextFieldDefaults.ContainerBox(
+                            enabled = true,
+                            isError = false,
+                            interactionSource = interactionSource,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = iconColor,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         )
                     }
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedLabelColor = iconColor,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                    focusedBorderColor = iconColor,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                ),
-                contentPadding = PaddingValues(start = 0.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
-                container = {
-                    OutlinedTextFieldDefaults.ContainerBox(
-                        enabled = true,
-                        isError = false,
+                )
+            }
+        )
+
+        if (onClick != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
                         interactionSource = interactionSource,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = iconColor,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                        indication = null,
+                        onClick = onClick
                     )
-                }
             )
         }
-    )
+    }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddEditScheduleDialog(
     initialSchedule: CourseSchedule? = null,
@@ -789,6 +858,7 @@ fun AddEditScheduleDialog(
     onDismiss: () -> Unit,
     onSaveSchedule: (CourseSchedule) -> Unit
 ) {
+    val context = LocalContext.current
     var tipe by remember { mutableStateOf(initialSchedule?.tipe?.ifEmpty { "Kuliah" } ?: "Kuliah") }
     var hari by remember {
         mutableStateOf(
@@ -803,7 +873,7 @@ fun AddEditScheduleDialog(
             initialSchedule?.jam?.let {
                 val parts = it.split(Regex("""[-:]"""))
                 if (parts.size >= 2) ScheduleWidget.formatJamDisplay(parts[0]) else it
-            } ?: "08:00 AM"
+            } ?: "08:00"
         )
     }
     var jamSelesai by remember {
@@ -811,7 +881,7 @@ fun AddEditScheduleDialog(
             initialSchedule?.jam?.let {
                 val parts = it.split(Regex("""[-:]"""))
                 if (parts.size >= 2) ScheduleWidget.formatJamDisplay(parts[1]) else ""
-            } ?: "09:40 AM"
+            } ?: "09:40"
         )
     }
 
@@ -1042,9 +1112,15 @@ fun AddEditScheduleDialog(
                         value = jamMulai,
                         onValueChange = { jamMulai = it },
                         label = "Mulai",
-                        placeholder = "08:00 AM",
+                        placeholder = "08:00",
                         icon = Icons.Default.Schedule,
                         iconColor = Color(0xFFFFB74D),
+                        readOnly = true,
+                        onClick = {
+                            showTimePicker(context, jamMulai) { selected ->
+                                jamMulai = selected
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
 
@@ -1052,9 +1128,15 @@ fun AddEditScheduleDialog(
                         value = jamSelesai,
                         onValueChange = { jamSelesai = it },
                         label = "Selesai",
-                        placeholder = "09:40 AM",
+                        placeholder = "09:40",
                         icon = Icons.Default.Schedule,
                         iconColor = Color(0xFFFFB74D),
+                        readOnly = true,
+                        onClick = {
+                            showTimePicker(context, jamSelesai) { selected ->
+                                jamSelesai = selected
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
                 }
