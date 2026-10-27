@@ -719,17 +719,33 @@ fun CustomScheduleTextField(
         decorationBox = @Composable { innerTextField ->
             OutlinedTextFieldDefaults.DecorationBox(
                 value = value,
-                innerTextField = innerTextField,
+                innerTextField = {
+                    Box(modifier = Modifier.offset(x = (-8).dp)) {
+                        innerTextField()
+                    }
+                },
                 enabled = true,
                 singleLine = true,
                 visualTransformation = VisualTransformation.None,
                 interactionSource = interactionSource,
-                label = { Text(label, style = MaterialTheme.typography.labelSmall) },
-                placeholder = { Text(placeholder, style = MaterialTheme.typography.bodyMedium) },
+                label = {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.offset(x = (-8).dp)
+                    )
+                },
+                placeholder = {
+                    Text(
+                        placeholder,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.offset(x = (-8).dp)
+                    )
+                },
                 leadingIcon = {
                     Box(
                         modifier = Modifier
-                            .width(22.dp)
+                            .width(18.dp)
                             .padding(start = 2.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
@@ -747,7 +763,7 @@ fun CustomScheduleTextField(
                     focusedBorderColor = iconColor,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                 ),
-                contentPadding = PaddingValues(start = 0.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
+                contentPadding = PaddingValues(start = 0.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
                 container = {
                     OutlinedTextFieldDefaults.ContainerBox(
                         enabled = true,
