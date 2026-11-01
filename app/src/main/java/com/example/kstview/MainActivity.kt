@@ -729,10 +729,10 @@ private fun showTimePicker(
         if (isAm && hour == 12) hour = 0
     } catch (_: Exception) {}
 
-    val activity = context.findActivity() ?: return
+    val activity = context.findActivity()
 
     TimePickerDialog(
-        activity,
+        activity ?: context,
         { _, selectedHour, selectedMinute ->
             val formattedTime = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
             onTimeSelected(formattedTime)
@@ -839,9 +839,10 @@ fun CustomScheduleTextField(
         if (onClick != null) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(60.dp)
                     .clickable(
-                        interactionSource = interactionSource,
+                        interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = onClick
                     )

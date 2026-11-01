@@ -4,6 +4,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.util.Locale
 
 class ScheduleModelUnitTest {
 
@@ -65,5 +66,24 @@ class ScheduleModelUnitTest {
         val decodedList = json.decodeFromString<List<CourseSchedule>>(legacyJson)
         assertEquals(1, decodedList.size)
         assertEquals("Kuliah", decodedList[0].tipe)
+    }
+
+    @Test
+    fun test24HourTimeFormatting() {
+        val selectedHour = 13
+        val selectedMinute = 30
+        val formattedTime = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
+        assertEquals("13:30", formattedTime)
+    }
+
+    @Test
+    fun testInitialTimeParsing() {
+        val initialTimeStr = "09:40"
+        val parts = initialTimeStr.split(Regex("""[:\s]"""))
+        val hour = parts[0].toIntOrNull() ?: 0
+        val minute = parts[1].toIntOrNull() ?: 0
+
+        assertEquals(9, hour)
+        assertEquals(40, minute)
     }
 }
